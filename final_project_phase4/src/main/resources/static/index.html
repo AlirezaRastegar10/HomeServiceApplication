@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://examples.javacodegeeks.com/wp-content/litespeed/localres/aHR0cHM6Ly9hamF4Lmdvb2dsZWFwaXMuY29tL2FqYXgvlibs/jquery/3.5.1/jquery.min.js"
+            type="text/javascript"></script>
+    <script src="https://examples.javacodegeeks.com/wp-content/litespeed/localres/aHR0cHM6Ly93d3cuZ29vZ2xlLmNvbS9yZWNhcHRjaGEvYXBpLmpz"
+            type="text/javascript"></script>
+    <title>Payment Gateway</title>
+</head>
+<body>
+<script type="text/javascript">
+    function validateAndGetCaptchaResponse() {
+        const response = grecaptcha.getResponse();
+        return response.length === 0 ? null : response;
+    }
+
+    $(document).ready(function () {
+        $("#recaptcha").click(function () {
+            $("#captcha-error").html("");
+
+            let captchaResponse = validateAndGetCaptchaResponse();
+            if (captchaResponse) {
+                console.log("Captcha code accepted.")
+                let name = $("#name").val();
+                let requestObj = {
+                    'name': name.length === 0 ? 'Dummy' : name,
+                    'captchaResponse': captchaResponse
+                };
+
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify(requestObj),
+                    url: "http://localhost:8081/api/v1/payment/captcha",
+                    success: function (data) {
+                        alert(data.message);
+                    }
+                });
+            } else {
+                $("#captcha-error").html("You cannot leave the captcha code empty.");
+            }
+        });
+    });
+</script>
+
+<section id="main" style="margin-top: 100px; margin-bottom: 100px">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header bg-warning text-center">Payment info</div>
+                    <div class="card-body">
+                        <ul class="list-group">
+                            <li class="list-group-item"><h2 class="text-success"> 1,000,000 <i class="bx bx-money"></i>
+                            </h2> Toman
+                            </li>
+                            <li class="list-group-item">
+                                You are paying for the order you selected in the previous step. Please enter the
+                                information carefully.
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bx bxl-paypal fs-1 text-danger">PayPal</i>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-header bg-info text-center">Payment GateWay</div>
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="card-title"><i class="bx bx-credit-card"></i> Card Number :</div>
+                                <div class="col-sm-3"><input id="card1" type="tel" maxlength="4"
+                                                             class="num-active form-control" required></div>
+                                <div class="col-sm-3"><input id="card2" type="tel" maxlength="4"
+                                                             class="num-active form-control" required></div>
+                                <div class="col-sm-3"><input id="card3" type="tel" maxlength="4"
+                                                             class="num-active form-control" required></div>
+                                <div class="col-sm-3"><input id="card4" type="tel" maxlength="4"
+                                                             class="num-active form-control" required></div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="card-title"><i class="bx bxs-lock"></i> Second Password :</div>
+                                <div class="col-md-7">
+                                    <input id="secondPassword" type="password" class="num-active form-control"
+                                           minlength="6" maxlength="12" required>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="card-title"><i class="bx bxs-credit-card-front"></i> CVV2 :</div>
+                                <div class="col-md-7">
+                                    <input id="cvv2" type="tel" class="num-active form-control" minlength="3"
+                                           maxlength="4" required>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="card-title"><i class="bx bxs-lock-open"></i> Captcha :</div>
+                                <div class="col-md-5">
+                                    <div class="g-recaptcha" data-sitekey="6LcUsIAkAAAAAOGwviKXSuYOG_FH5_Hn3Hw3Y7Hb"
+                                         id="recaptcha"></div>
+                                    <span id="captcha-error" style="color: red"></span>
+                                </div>
+                                <div class="col-md-2 mt-3">
+                                </div>
+                                <div class="col-md-5 mt-3">
+                                    <span id="remaining-time" class="bx bxs-timer text-danger fs-4"></span>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="card-title"><i class="bx bxs-calendar"></i> Expiration date :</div>
+                                <div class="col-md-4">
+                                    <input id="year" type="tel" class="num-active form-control" placeholder="Year"
+                                           minlength="2" maxlength="2" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="month" type="tel" class="num-active form-control" placeholder="Month"
+                                           minlength="2" maxlength="2" required>
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-md-8">
+                                    <div class="card-title"><i class="bx bxs-envelope"></i> Email(optional) :</div>
+                                    <input id="email" type="email" class="num-active form-control">
+                                </div>
+                            </div>
+                            <div class="btn-group mt-3 d-flex">
+                                <a href="" class="btn btn-info" id="paymentBtn">Pay <i class="bx bx-check"></i></a>
+                                <div class="col-md-1">
+                                </div>
+                                <a href="" class="btn btn-danger" id="failedBtn">Cancel <i class="bx bx-x"></i></a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="main.js"></script>
+<script
+        src="https://code.jquery.com/jquery-3.6.3.slim.js"
+        integrity="sha256-DKU1CmJ8kBuEwumaLuh9Tl/6ZB6jzGOBV/5YpNE2BWc="
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.4.14/sweetalert2.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.3.min.js"
+        integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+<script>
+    $("#paymentBtn").on('click', (e) => {
+        e.preventDefault();
+        const card1 = document.getElementById('card1').value;
+        const card2 = document.getElementById('card2').value;
+        const card3 = document.getElementById('card3').value;
+        const card4 = document.getElementById('card4').value;
+        const password = document.getElementById('secondPassword').value;
+        const cvv2 = document.getElementById('cvv2').value;
+        const year = document.getElementById('year').value;
+        const month = document.getElementById('month').value;
+        const email = document.getElementById('email').value;
+
+        const form = {};
+        form['card1'] = card1;
+        form['card2'] = card2;
+        form['card3'] = card3;
+        form['card4'] = card4;
+        form['secondPassword'] = password;
+        form['cvv2'] = cvv2;
+        form['year'] = year;
+        form['month'] = month;
+        form['email'] = email;
+
+        $.ajax({
+            url: "http://localhost:8081/api/v1/payment/finalPayment",
+            type: "POST",
+            data: JSON.stringify(form),
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            async: false,
+            error: function (xhr, status, error) {
+                if (xhr.status === 200) {
+                    location.href = "success.html";
+                }else if (xhr.status === 400) {
+                    location.href = "failed.html";
+                }
+            }
+        })
+    })
+
+    $("#failedBtn").on('click', (e) => {
+        e.preventDefault();
+        location.href = "failed.html";
+    })
+</script>
+</body>
+</html>
